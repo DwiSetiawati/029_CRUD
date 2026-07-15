@@ -52,6 +52,32 @@ app.post('/api/biodata', async (req, res) => {
     }
 });
 
+//put
+app.put('/api/biodata/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nama, nim, kelas } = req.body; // Menerima data perubahan
+
+        const result = await pool.query(
+            'UPDATE biodata SET nama = $1, nim = $2, kelas = $3 WHERE id = $4 RETURNING *',
+            [nama, nim, kelas, id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: `Data dengan ID ${id} tidak ditemukan` });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            pesan: 'Data biodata berhasil diperbarui',
+            data: result.rows[0]
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Terjadi kesalahan saat memperbarui data' });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
 });
