@@ -30,6 +30,27 @@ app.get('/api/biodata', async (req, res) => {
     }
 });
 
+app.get('/api/biodata/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await pool.query('SELECT * FROM biodata WHERE id = $1', [id]);
+
+        // Validasi jika ID tidak ditemukan di database
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: `Data dengan ID ${id} tidak ditemukan` });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            pesan: `Berhasil mengambil detail data dengan ID ${id}`,
+            data: result.rows[0]
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Terjadi kesalahan pada server' });
+    }
+});
+
 //post
 app.post('/api/biodata', async (req, res) => {
     try {
